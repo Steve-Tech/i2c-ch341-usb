@@ -1048,8 +1048,8 @@ static int ch341_gpio_probe (struct ch341_device* ch341_dev)
     for (i = 0; i < CH341_GPIO_NUM_PINS; i++)
     {
         // in case the pin as CS signal, it is an GPIO pin
-        if ((result = gpio_request(gpio->base + j, ch341_board_config[i].name))/* ||
-            (result = gpio_export (gpio->base + j, ch341_board_config[i].pin != 21 ? true : false))*/)
+        if ((result = gpio_request(gpio->base + j, ch341_board_config[i].name)) ||
+            (result = gpiod_export(gpio_to_desc(gpio->base + j), ch341_board_config[i].pin != 21 ? true : false)))
         {
             DEV_ERR (CH341_IF_ADDR, "failed to export GPIO %s: %d",
                      ch341_board_config[i].name, result);
