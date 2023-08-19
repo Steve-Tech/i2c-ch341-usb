@@ -49,6 +49,7 @@
 #include <linux/usb.h>
 #include <linux/i2c.h>
 #include <linux/gpio.h>
+#include <linux/gpio/driver.h>
 #include <linux/irq.h>
 #include <linux/kthread.h>
 
@@ -657,7 +658,7 @@ static int ch341_irq_probe (struct ch341_device* ch341_dev)
 
     for (i = 0; i < ch341_dev->irq_num; i++)
     {
-        ch341_dev->irq_descs[i]   = irq_to_desc(ch341_dev->irq_base + i);
+        ch341_dev->irq_descs[i]   = irq_data_to_desc(irq_get_irq_data(ch341_dev->irq_base + i));
         ch341_dev->irq_enabled[i] = false;
 
         irq_set_chip          (ch341_dev->irq_base + i, &ch341_dev->irq);
@@ -1047,8 +1048,8 @@ static int ch341_gpio_probe (struct ch341_device* ch341_dev)
     for (i = 0; i < CH341_GPIO_NUM_PINS; i++)
     {
         // in case the pin as CS signal, it is an GPIO pin
-        if ((result = gpio_request(gpio->base + j, ch341_board_config[i].name)) ||
-            (result = gpio_export (gpio->base + j, ch341_board_config[i].pin != 21 ? true : false)))
+        if ((result = gpio_request(gpio->base + j, ch341_board_config[i].name))/* ||
+            (result = gpio_export (gpio->base + j, ch341_board_config[i].pin != 21 ? true : false))*/)
         {
             DEV_ERR (CH341_IF_ADDR, "failed to export GPIO %s: %d",
                      ch341_board_config[i].name, result);
